@@ -8,6 +8,7 @@ use App\Database\SQLite;
 
 use App\EventSender\EventSender;
 
+use App\EventSender\TelegramSender;
 use App\Models\Event;
 
 //use App\Models\EventDto;
@@ -34,7 +35,7 @@ class HandleEventsCommand extends Command
 
         $events = $event->select();
 
-        $eventSender = new EventSender();
+        $eventSender = new EventSender(new TelegramSender($this->app->env('TELEGRAM_TOKEN')));
 
         foreach ($events as $event) {
 
@@ -61,15 +62,15 @@ class HandleEventsCommand extends Command
 
         $currentWeekday = date("w");
 
-        return ((!$event['minute'] || $event['minute'] === $currentMinute) &&
+        return ((!$event['minute'] || (int) $event['minute'] === (int) $currentMinute) &&
 
-            (!$event['hour'] || $event['hour'] === $currentHour) &&
+            (!$event['hour'] || (int) $event['hour'] === (int) $currentHour) &&
 
-            (!$event['day'] || $event['day'] === $currentDay) &&
+            (!$event['day'] || (int) $event['day'] === (int) $currentDay) &&
 
-            (!$event['month'] || $event['month'] === $currentMonth) &&
+            (!$event['month'] || (int) $event['month'] === (int) $currentMonth) &&
 
-            (!$event['day_of_week'] || $event['day_of_week'] === $currentWeekday));
+            (!$event['day_of_week'] || (int) $event['day_of_week'] === (int) $currentWeekday));
     }
 
 }
