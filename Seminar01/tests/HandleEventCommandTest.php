@@ -4,6 +4,9 @@ use App\Application;
 use App\Commands\HandleEventsCommand;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers HandleEventsCommand
+ */
 class HandleEventCommandTest extends TestCase
 {
     /**

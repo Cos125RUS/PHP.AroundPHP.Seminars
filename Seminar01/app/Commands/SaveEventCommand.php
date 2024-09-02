@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Actions\EventSaver;
 use App\Application;
 use App\Database\SQLite;
 use App\Models\Event;
@@ -20,51 +21,47 @@ class SaveEventCommand extends Command
         $this->app = $app;
 
     }
-    public function run(array $options  = []): void
+
+    public function run(array $options = []): void
 
     {
 
         $options = $this->getGetoptOptionValues();
 
         if ($this->isNeedHelp($options)) {
-
             $this->showHelp();
-
             return;
-
         }
 
         $cronValues = $this->getCronValues($options['cron']);
 
         if (count($cronValues) != 5) {
-
             $this->showHelp();
-
             return;
-
         }
 
         $params = [
-
             'name' => $options['name'],
-
             'text' => $options['text'],
-
             'receiver_id' => $options['receiver'],
-
             'minute' => $cronValues[0],
-
             'hour' => $cronValues[1],
-
             'day' => $cronValues[2],
-
             'month' => $cronValues[3],
-
             'day_of_week' => $cronValues[4]
-
         ];
 
-        $this->saveEvent($params);
+//        $dto = new EventDto(
+//            $options['name'],
+//            $options['text'],
+//            $options['receiver'],
+//            ...$cronValues
+//        );
+
+        $eventModel = new Event(new SQLite($this->app));
+        $eventSaver = new EventSaver($eventModel);
+        $eventSaver->handle($params);
+//        $this->saveEvent($params);
 
     }
 
