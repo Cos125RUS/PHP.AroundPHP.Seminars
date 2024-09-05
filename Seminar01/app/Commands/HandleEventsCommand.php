@@ -10,6 +10,7 @@ use App\EventSender\EventSender;
 
 use App\EventSender\TelegramSender;
 use App\Models\Event;
+use App\Queue\RabbitMQ;
 
 //use App\Models\EventDto;
 
@@ -32,21 +33,17 @@ class HandleEventsCommand extends Command
     {
 
         $event = new Event(new SQLite($this->app));
-
         $events = $event->select();
 
-        $eventSender = new EventSender(new TelegramSender($this->app->env('TELEGRAM_TOKEN')));
+        $eventSender = new EventSender(
+            new TelegramSender($this->app->env('TELEGRAM_TOKEN')),
+            new RabbitMQ('eventSender'));
 
         foreach ($events as $event) {
-
             if ($this->shouldEventBeRan($event)) {
-
                 $eventSender->sendMessage($event['receiver_id'], $event['text']);
-
             }
-
         }
-
     }
 
     public function shouldEventBeRan($event): bool
